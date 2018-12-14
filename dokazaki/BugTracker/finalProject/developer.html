@@ -1,0 +1,329 @@
+<!DOCTYPE>
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<title>SCU IT Bug Reporting Program</title>
+</head>
+<!-- 
+this page can be used by developers only
+each developer can look at bugs assigned to them, adjust the severity level, add a description, and
+	send the bug back for more testing
+developers can also logout
+ -->
+<body style="margin:25">
+	<form style = "width:200px; float:right" align="right">
+	  	<input id = "logoutid" type="button" value = "Logout" onClick = "logout();" />
+	</form>
+<br>
+<br>
+<p id="devName"> </p>
+
+<script type="text/javascript">
+
+/*
+    logout()
+    no parameters
+    return type: null
+    logs the user out by setting username and permission to " " and returning user to index.html
+*/
+function logout() {
+    sessionStorage.setItem("username", " ");
+    sessionStorage.setItem("permission", " ");
+	document.location.href = "index.html";
+}
+
+/*
+    devData()
+    no parameters
+    return type: null
+    creates and displays a table listing all of the bugs that are assigned to the developer who logged in
+    includes information such as the system, description, and details of the bug
+        as well as the tester, developer, date created, date last updated, severity, and more
+    also include the abiity to look at tester's description, to add/change their own description,
+    	to adjust the severity level, and to send back to testing
+*/
+function devData(dev) {
+	var data = "developer="+dev;
+	document.getElementById("devName").innerHTML = "Username: ".bold() + dev;
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/getDeveloper",
+		data: data,
+		type: "GET",
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('x-api-key', 'JzYRhBdiPk4CewLHnGBJXaJq3Pr6OSx9au6aH90i');
+		},
+	   success: function (data) {
+			console.log(data);
+			var severityLevel = ["blocker","critical","major","minor","cosmetic"];
+			
+			var myTableDiv = document.getElementById("testTable");
+			var body = document.body;
+			var tbl = document.createElement('table');
+			//tbl.style.width  = '900';
+			tbl.style.border = '1px solid black';
+			var tr = tbl.insertRow();
+			
+			var td1 = tr.insertCell();
+			td1.appendChild(document.createTextNode("ID"));
+			td1.style.border = '2px solid black';
+			td1.style.padding= '10px';
+			td1.style.width = '300px';
+
+			var td1b = tr.insertCell();
+			td1b.appendChild(document.createTextNode("System"));
+			td1b.style.border = '2px solid black';
+			td1b.style.padding = '10px';
+
+			var td2 = tr.insertCell();
+			td2.appendChild(document.createTextNode("Description"));
+			td2.style.border = '2px solid black';
+			td2.style.padding= '10px';
+			td2.style.width = '400px';
+
+			var td3 = tr.insertCell();
+			td3.appendChild(document.createTextNode("Details"));
+			td3.style.border = '2px solid black';
+			td3.style.padding= '10px';
+			td2.style.width='400px';
+
+			var td4 = tr.insertCell();
+			td4.appendChild(document.createTextNode("Severity"));
+			td4.style.border = '2px solid black';
+			td4.style.padding= '10px';
+
+			var td5 = tr.insertCell();
+			td5.appendChild(document.createTextNode("More detail"));
+			td5.style.border = '2px solid black';
+			td5.style.padding= '10px';
+
+			var td6 = tr.insertCell();
+			td6.style.border = '2px solid black';
+			//td6.style.padding= '10px';
+			var i = 0;
+
+			var td7 = tr.insertCell();
+			td7.appendChild(document.createTextNode("Date Last Updated"));
+			td7.style.border = '2px solid black';
+			td7.style.padding= '10px';
+
+			var td8 = tr.insertCell();
+			td8.appendChild(document.createTextNode("Created Date"));
+			td8.style.border = '2px solid black';
+			td8.style.padding= '10px';
+
+			data.forEach(function(bug) {
+				console.log(bug);
+				var id = bug['code'];
+
+				//id
+				var tr = tbl.insertRow();
+				i++;
+				var td1 = tr.insertCell();
+				td1.appendChild(document.createTextNode(bug['code']));
+				td1.style.border = '1px solid black';
+				td1.style.padding= '10px';
+
+				//system
+				var td1b = tr.insertCell();
+				td1b.appendChild(document.createTextNode(bug['system']));
+				td1b.style.border = '1px solid black';
+				td1b.style.padding= '10px';
+
+				//description
+				var td2 = tr.insertCell();
+				td2.appendChild(document.createTextNode(bug['description']));
+				td2.style.border = '1px solid black';
+				td2.style.padding= '10px';
+				td2.style.maxWidth= '400px';
+				td2.style.width='400px';
+				td2.style.wordWrap= 'break-word';
+
+				//what client was doing
+				var td3 = tr.insertCell();
+				td3.appendChild(document.createTextNode(bug['details']));
+				td3.style.border = '1px solid black';
+				td3.style.padding= '10px';
+				td3.style.maxWidth= '500px';
+				td3.style.wordWrap= 'break-word';
+				td3.style.width='500px';
+
+				//severity level
+				var td4 = tr.insertCell();
+				var div1 = document.createElement('div');
+				div1.setAttribute("class","btn-group");
+				var button = document.createElement('button');
+				var sevChosen = true;
+				button.setAttribute("data-toggle","dropdown");
+				button.setAttribute("class","btn btn-default dropdown-toggle");
+				if(bug['severity']==" ") sevChosen = false;
+				if(sevChosen) button.innerHTML = bug['severity'];
+				else button.innerHTML = "Severity";
+				var div2 = document.createElement('div');
+				div2.setAttribute("class","dropdown-menu");
+				div2.style.minWidth="80px";
+				div2.style.minHeight="100px";
+				div2.style.textAlign="center";
+				var i;
+				for (i=0; i < severityLevel.length; i++) {
+					var level = severityLevel[i];
+					var sevButton = document.createElement('button');
+					sevButton.style.padding='3px 3px';
+					sevButton.style.width='80px';
+					sevButton.innerHTML = level;
+					sevButton.setAttribute("class","dropdown-item");
+					var sevChosen = bug['severity'];
+					sevButton.addEventListener('click', function() {
+						sevChosen = this.innerHTML;
+						td4.children[0].children[1].innerHTML = sevChosen;
+					});
+					div2.appendChild(sevButton);
+					div1.appendChild(div2);
+				}
+				div1.appendChild(button);				
+				td4.appendChild(div1);
+				td4.style.border = '1px solid black';
+				td4.style.textAlign = "center";
+				td4.style.padding= '10px';
+
+				
+				//look at devDetails and add testDetails
+				var td5 = tr.insertCell();
+				var expandButton = document.createElement('button');
+				expandButton.innerHTML = "expand";
+				var exp = expandButton.innerHTML;
+				var newDevDescription = bug['developerDescription'];
+				if(newDevDescription == "No Description Yet") newDevDescription = "";	
+				var tr2, tdDev, tdTest, devText;
+				expandButton.addEventListener('click',function() {
+					if(exp=="expand") {
+						tr2 = tbl.insertRow(this.parentNode.parentNode.rowIndex+1);
+						tdTest = tr2.insertCell();
+						tdTest.innerHTML = "Tester description: ".bold() + bug['testerDescription'];
+						tdTest.style.verticalAlign = "top";
+						tdTest.colSpan = "3";
+						tdTest.style.maxWidth = "500px";
+						tdTest.style.border = '1px solid black';
+						var tdLabel = tr2.insertCell();
+						tdLabel.innerHTML = "Dev description:".bold();
+						tdLabel.style.verticalAlign = "top";
+						tdDev = tr2.insertCell();
+						devText = document.createElement('textarea');
+						devText.rows="10";
+						devText.style.margin="5";
+						devText.style.maxWidth = "500px";
+						devText.innerHTML = newDevDescription;
+						tdDev.colSpan = "5";
+						devText.style.width = "98%";
+						devText.style.height = "100%";
+						devText.style.verticalAlign = "top";
+						tdDev.appendChild(devText);
+						exp = "collapse";
+						expandButton.innerHTML = exp;
+					}
+					else if(exp=="collapse") {
+						newDevDescription = devText.value;
+						tbl.deleteRow(this.parentNode.parentNode.rowIndex+1);
+						exp = "expand";
+						expandButton.innerHTML = exp;
+					}
+
+				});
+				td5.appendChild(expandButton);
+				td5.style.border = '1px solid black';
+				td5.style.textAlign = "center";
+				td5.style.padding= '10px';
+
+				//developer's choice
+				var td6 = tr.insertCell();
+				var button1 = document.createElement('button');
+				button1.addEventListener('click', function() {
+					//developer to tester
+					//updateBug(bug.id,"testing");
+					if(exp=="collapse") {
+						newDevDescription = devText.value;
+						tbl.deleteRow(this.parentNode.parentNode.rowIndex+1);
+					}
+					toTest(bug['code'],bug['developer'],sevChosen,newDevDescription);
+					tbl.deleteRow(this.parentNode.parentNode.rowIndex);
+					i--;
+				});
+				button1.innerHTML = "Send to testing";
+				var button2 = document.createElement('button');
+				button2.addEventListener('click', function() {
+					//developer unresolved
+					unresolved(bug['code'],bug['developer'],sevChosen,newDevDescription);
+					tbl.deleteRow(this.parentNode.parentNode.rowIndex);
+					i--;
+				});
+				
+				td6.appendChild(button1);
+				td6.style.border = '1px solid black';
+				td6.style.padding= '10px';
+
+				//last updated date
+				var td7 = tr.insertCell();
+				td7.appendChild(document.createTextNode(bug['lastUpdatedDate']));
+				td7.style.border = '1px solid black';
+				td7.style.padding= '10px';
+
+				//Created Date
+				var td8 = tr.insertCell();
+				td8.appendChild(document.createTextNode(bug['dateCreated']));
+				td8.style.border = '1px solid black';
+				td8.style.padding= '10px';
+			}); 
+			body.appendChild(tbl);
+		}
+	})
+
+}
+
+/*
+	toTest()
+	parameters: 
+	* bugID (string): the id of the bug being sent to testing
+	* devName (string): the username of the developer the bug is assigned to
+	* severity (string): severity level of the bug
+	* txt (string): the (updated) developer's description of the bug
+	return type: null
+	when the developer thinks the bug they were working on is fixed, they can send it to testing with 
+		various updates
+*/
+function toTest(bugID,devName,severity,txt) {
+	if(txt == " "|| txt == "") {
+		txt = "No Description Yet";
+	}
+	var data = "text=" + txt + "&developer="+devName + "&id="+bugID + "&severity="+severity;
+	$.ajax({
+			   url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/developerToTester",
+			   data: data,
+			   type: "GET",
+			   beforeSend: function(xhr) {
+			       xhr.setRequestHeader('x-api-key', 'loGBGfW6Jx7nQrl4QOdF41uE1EG6zjK03yoTSEZX');
+					console.log(JSON.stringify(data))
+			   },
+			   success: function (data) {
+					console.log(data);	
+			   }
+		})
+}
+var permission = sessionStorage.getItem('permission');
+// if the user doesn't have developer permissions, send them back to the index page
+if(permission == 'developer') {
+	devData(sessionStorage.getItem('username'));
+}
+else {
+	document.location.href = "index.html";
+}
+</script>
+
+
+</body>
+</html>

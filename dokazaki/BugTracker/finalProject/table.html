@@ -1,0 +1,238 @@
+<!DOCTYPE>
+<html>  
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<title>SCU IT Bug Reporting Program</title>
+</head>
+<!-- 
+this page is used by the manager (only) to view all reported bugs
+the manager can also change pages to look at all bugs reported, or the bugs that need
+    a tester or developer assigned
+the manager can also log out
+ -->
+<body style="margin:25">
+    <!-- manager's buttons
+         * to the table listing all bugs
+         * to the page where they assign testers and developers
+         * to the page where they can create new accounts -->
+  	  <div class="btn-group" role="group" aria-label="...">
+        <a href = "table.html" class="btn btn-default disabled">Table</a>
+        <a href="manager.html" class="btn btn-default">Manager</a>
+        <a href="account.html" class="btn btn-default">Create Account</a>
+    </div>
+
+    <!-- logout button -->
+	<form style = "width:200px; float:right" align="right">
+		<input id = "logoutid" type="button" value = "Logout" onClick= "logout();" />
+	</form>
+
+<br>
+<br>
+<br>
+<br>
+
+<script type="text/javascript">
+
+
+/*
+    logout()
+    no parameters
+    return type: null
+    logs the user out by setting username and permission to " " and returning user to index.html
+*/
+function logout() {
+    sessionStorage.setItem("username", " ");
+    sessionStorage.setItem("permission", " ");
+	document.location.href = "index.html";
+}
+
+/*
+    bugData()
+    no parameters
+    return type: null
+    creates and displays a table listing all of the bugs that have been reporting
+    includes information such as the system, description, and details of the bug
+        as well as the tester, developer, date created, date last updated, severity, and more
+*/
+function bugData() {
+    var data;
+    $.ajax({
+        url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/getAllForms",
+        data: data,
+        type: "GET",
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('x-api-key', '8EWZgXbwTg3SMjstxbb61UOWCOoqM4W96BjZAFK8');
+        },
+        success: function (data) {
+            var myTableDiv = document.getElementById("testTable");
+            var body = document.body;
+            var tbl = document.createElement('table');
+            //tbl.style.width  = '800';
+            tbl.style.border = '1px solid black';
+            var tr = tbl.insertRow();
+            
+            var td1 = tr.insertCell();
+            td1.appendChild(document.createTextNode("ID"));
+            td1.style.border = '2px solid black';
+			td1.style.padding = '10px';
+			td1.style.width = '300px';
+            
+            var td1b = tr.insertCell();
+            td1b.appendChild(document.createTextNode("System"));
+            td1b.style.border = '2px solid black';
+            td1b.style.padding = '10px';
+
+            var td2 = tr.insertCell();
+            td2.appendChild(document.createTextNode("Severity"));
+            td2.style.border = '2px solid black';
+			td2.style.padding = '10px';
+            
+            var td3 = tr.insertCell();
+            td3.appendChild(document.createTextNode("Status"));
+            td3.style.border = '2px solid black';
+			td3.style.padding = '10px';
+            
+            var td4 = tr.insertCell();
+            td4.appendChild(document.createTextNode("Description"));
+            td4.style.border = '2px solid black';
+			td4.style.padding = '10px';
+			td4.style.width = '350px';
+            
+            var td5 = tr.insertCell();
+            td5.appendChild(document.createTextNode("Details"));
+            td5.style.border = '2px solid black';
+			td5.style.padding = '10px';
+			td5.style.width = '350px';
+
+            var td6 = tr.insertCell();
+            td6.appendChild(document.createTextNode("Tester"));
+            td6.style.border = '2px solid black';
+			td6.style.padding = '10px';
+
+            var td7 = tr.insertCell();
+            td7.appendChild(document.createTextNode("Developer"));
+            td7.style.border = '2px solid black';
+			td7.style.padding = '10px';
+
+            var td8 = tr.insertCell();
+            td8.appendChild(document.createTextNode("Date Last Updated"));
+            td8.style.border = '2px solid black';
+			td8.style.padding = '10px';
+				
+			var td9 = tr.insertCell();
+            td9.appendChild(document.createTextNode("Date Created"));
+            td9.style.border = '2px solid black';
+			td9.style.padding = '10px';
+
+			var td10 = tr.insertCell();
+            td10.appendChild(document.createTextNode("Last Updated By"));
+            td10.style.border = '2px solid black';
+			td10.style.padding = '10px';
+            
+            var i = 0;
+
+            data.forEach(function(bug) {
+                var id = bug['code'];
+
+                //id
+                var tr = tbl.insertRow();
+                i++;
+                var td1 = tr.insertCell();
+                td1.appendChild(document.createTextNode(bug['code']));
+                td1.style.border = '1px solid black';
+				td1.style.padding = '10px';
+
+                //system
+                var td1b = tr.insertCell();
+                td1b.appendChild(document.createTextNode(bug['system']));
+                td1b.style.border = '1px solid black';
+                td1b.style.padding= '10px';
+                
+                //severity
+                var td2 = tr.insertCell();
+                td2.appendChild(document.createTextNode(bug['severity']));
+                td2.style.border = '1px solid black';
+				td2.style.padding = '10px';
+
+                //status
+                var td3 = tr.insertCell();
+                td3.appendChild(document.createTextNode(bug['status']));
+                td3.style.border = '1px solid black';
+				td3.style.padding = '10px';
+
+                //description
+                var td4 = tr.insertCell();
+                td4.appendChild(document.createTextNode(bug['description']));
+                td4.style.border = '1px solid black';
+				td4.style.padding = '10px';
+				td4.style.maxWidth = '350px';
+				td4.style.wordWrap = 'break-word';
+
+                //what client was doing
+                var td5 = tr.insertCell();
+                td5.appendChild(document.createTextNode(bug['details']));
+                td5.style.border = '1px solid black';
+				td5.style.padding = '10px';
+				td5.style.maxWidth = '350px';
+				td5.style.wordWrap = 'break-word';
+                
+                //tester name
+                var td6 = tr.insertCell();
+                var testName = bug['tester'];
+                //if(testName==" ") testName = "not assigned";
+                td6.appendChild(document.createTextNode(testName));
+                td6.style.border = '1px solid black';
+				td6.style.padding = '10px';
+
+
+                //dev name
+                var td7 = tr.insertCell();
+                var devName = bug['developer'];
+                //if(devName==" ") devName = "not assigned";
+                td7.appendChild(document.createTextNode(devName));
+                td7.style.border = '1px solid black';
+				td7.style.padding = '10px';
+                
+               
+                //last updated date
+                var td8 = tr.insertCell();
+                td8.appendChild(document.createTextNode(bug['lastUpdatedDate']));
+                td8.style.border = '1px solid black';
+				td8.style.padding = '10px';
+
+				//last updated date
+                var td9 = tr.insertCell();
+                td9.appendChild(document.createTextNode(bug['dateCreated']));
+                td9.style.border = '1px solid black';
+				td9.style.padding = '10px';
+
+				//last updated by
+                var td10 = tr.insertCell();
+                td10.appendChild(document.createTextNode(bug['lastUpdatedBy']));
+                td10.style.border = '1px solid black';
+				td10.style.padding = '10px';
+            }); 
+            body.appendChild(tbl);
+        }
+    })
+
+}
+var username = sessionStorage.getItem('username');
+
+if(username == "manager") {
+	bugData();
+}
+else {
+	document.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

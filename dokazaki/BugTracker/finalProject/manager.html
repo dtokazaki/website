@@ -1,0 +1,334 @@
+<!DOCTYPE>
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<title>SCU IT Bug Reporting Program</title>
+</head>
+<!-- 
+this page can be used by managers only
+on this page, managers can only see bugs that are waiting for a tester or developer to be assigned to them
+the manager can also change pages to look at all bugs reported, or the bugs that need
+    a tester or developer assigned
+the manager can also logout
+ -->
+<body style="margin:25">
+    <!-- manager's buttons
+         * to the table listing all bugs
+         * to the page where they assign testers and developers
+         * to the page where they can create new accounts -->
+  	  <div class="btn-group" role="group" aria-label="...">
+        <a href = "table.html" class="btn btn-default">Table</a>
+        <a href="manager.html" class="btn btn-default disabled">Manager</a>
+        <a href="account.html" class="btn btn-default">Create Account</a>
+    </div>
+
+    <!-- logout button -->
+	<form style = "width:200px; float:right" align="right">
+		<input id = "logoutid" type="button" value = "Logout" onClick= "logout();" />
+	</form>
+
+<br>
+<br>
+<br>
+<br>
+
+<script type="text/javascript">
+
+/*
+    logout()
+    no parameters
+    return type: null
+    logs the user out by setting username and permission to " " and returning user to index.html
+*/
+function logout() {
+    sessionStorage.setItem("username", " ");
+    sessionStorage.setItem("permission", " ");
+
+	document.location.href = "index.html";
+}
+
+/*
+    managerData()
+    no parameters
+    return type: null
+    creates and displays a table listing all of the bugs that need a tester or developer assigned
+    * tester assigned immediately after bug is reported
+    * developer assigned if tester deems the bug to be an issue
+    includes information such as the system, description, and details of the bug
+        as well as the tester, developer, date created, date last updated, severity, and more
+*/
+function managerData() {
+	var testNameList;
+	var devNameList;
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/getTesterList",
+		type: "GET",
+		beforeSend: function(xhr) {
+		xhr.setRequestHeader('x-api-key', '32ItpXeTc36ERMAUZTaQY3aD40PKvh57JomYO07g');
+		},
+	   	success: function (data) {
+			testNameList= data;
+		}	
+	})
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/getDeveloperList",
+		type: "GET",
+		beforeSend: function(xhr) {
+		xhr.setRequestHeader('x-api-key', 'W6pHG4Y8kD7iAvhjVKhoN5WjdqBYsifXadyiVCh0');
+		},
+	   	success: function (data) {
+			devNameList= data;
+		}	
+	})
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/getManager",
+		type: "GET",
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('x-api-key', 'NyIwQLLyus97qJRhul7Zw7iMZlliEkC33OGoC3HS');
+		},
+	   success: function (data) {
+			var body = document.body;
+			var tbl = document.createElement('table');
+			//tbl.style.width  = '900';
+			tbl.style.border = '1px solid black';
+			var tr = tbl.insertRow();
+			
+			var td1 = tr.insertCell();
+			td1.appendChild(document.createTextNode("ID"));
+			td1.style.border = '2px solid black';
+			td1.style.padding = '10px'
+			td1.style.width = '300px';
+
+
+			var td1b = tr.insertCell();
+			td1b.appendChild(document.createTextNode("System"));
+			td1b.style.border = '2px solid black';
+			td1b.style.padding = '10px';
+	
+			var td2 = tr.insertCell();
+			td2.appendChild(document.createTextNode("Description"));
+			td2.style.border = '2px solid black';
+			td2.style.padding = '10px';
+			td2.style.width = '400px';
+	
+			var td3 = tr.insertCell();
+			td3.appendChild(document.createTextNode("Details"));
+			td3.style.border = '2px solid black';
+			td3.style.padding = '10px';
+			td3.style.width= '400px';
+	
+			var td4 = tr.insertCell();
+			td4.appendChild(document.createTextNode("Severity"));
+			td4.style.border = '2px solid black';
+			td4.style.padding ='10px';
+	
+			var td5 = tr.insertCell();
+			td5.appendChild(document.createTextNode("Status"));
+			td5.style.border = '2px solid black';
+			td5.style.padding = '10px';
+	
+			var td6 = tr.insertCell();
+			td6.style.border = '2px solid black';
+	
+			var i = 0;
+
+			var td7 = tr.insertCell();
+			td7.appendChild(document.createTextNode("Date Last Updated"));
+			td7.style.border = '2px solid black';
+			td7.style.padding = '10px';
+			
+			var td8 = tr.insertCell();
+			td8.appendChild(document.createTextNode("Date Created"));
+			td8.style.border = '2px solid black';
+			td8.style.padding = '10px';
+
+
+			data.forEach(function(bug) {
+				var id = bug['code'];
+
+				//id
+				var tr = tbl.insertRow();
+				i++;
+				var td1 = tr.insertCell();
+				td1.appendChild(document.createTextNode(bug['code']));
+				td1.style.border = '1px solid black';
+				td1.style.padding = '10px'
+
+				//system
+				var td1b = tr.insertCell();
+				td1b.appendChild(document.createTextNode(bug['system']));
+				td1b.style.border = '1px solid black';
+				td1b.style.padding= '10px';
+
+				//description
+				var td2 = tr.insertCell();
+				td2.appendChild(document.createTextNode(bug['description']));
+				td2.style.border = '1px solid black';
+				td2.style.padding= '10px';
+				td2.style.maxWidth= '400px';
+				td2.style.wordWrap= 'break-word';
+
+				//what client was doing
+				var td3 = tr.insertCell();
+				td3.appendChild(document.createTextNode(bug['details']));;
+				td3.style.border = '1px solid black';
+				td3.style.padding='10px';
+				td3.style.maxWidth= '400px';
+				td3.style.wordWrap= 'break-word';
+		
+				//dev name
+				var td4 = tr.insertCell();
+				td4.appendChild(document.createTextNode(bug['severity']));
+				td4.style.border = '1px solid black';
+				td4.style.padding = '10px';
+		
+				//status
+				var td5 = tr.insertCell();
+				td5.appendChild(document.createTextNode(bug['status']));
+				td5.style.border = '1px solid black';
+				td5.style.padding = '10px';
+		
+				//manager's choice
+				var td6 = tr.insertCell();
+				td6.style.padding = '10px';
+				var div1 = document.createElement('div');
+				div1.setAttribute("class","btn-group");
+				var button = document.createElement('button');
+				var devChosen = true;
+				button.setAttribute("data-toggle","dropdown");
+				button.setAttribute("class","btn btn-default dropdown-toggle");
+				button.style.width="120px";
+				var div2 = document.createElement('div');
+				div2.setAttribute("class","dropdown-menu");
+				div2.style.minWidth="20px";
+				div2.style.minHeight="20px";
+				div2.style.textAlign="center";
+				var who;
+				if(bug['tester']==" ") {
+					button.innerHTML = "Choose tester";
+					var list = testNameList;
+					who = "tester";
+				}
+				else if(bug['developer']==" ") {
+					button.innerHTML = "Choose dev";
+					var list = devNameList;
+					who = "developer";
+				}
+				td6.style.textAlign = "center";
+				for (var i=0; i < list.length; i++) {
+					var name = list[i];
+					var devA = document.createElement('button');
+					devA.setAttribute("id","choice"+i);
+					devA.style.width='100px';
+					devA.innerHTML = name;
+					devA.setAttribute("class","dropdown-item");
+					devA.addEventListener('click', function() {
+						var chosenName = this.innerHTML;
+						console.log(chosenName);
+						tbl.deleteRow(this.parentNode.parentNode.parentNode.parentNode.rowIndex);
+						if(who=="tester") {
+							assignToTest(bug['code'],chosenName);
+							//assign to tester
+						}
+						else if(who=="developer") {
+							//assign to developer
+							assignToDev(bug['code'],chosenName);
+						}
+					});
+					div2.appendChild(devA);
+					div1.appendChild(div2);
+				}
+				div1.appendChild(button);
+		
+				td6.appendChild(div1);
+
+				td6.style.border = '1px solid black';
+
+				//last updated date
+				var td7 = tr.insertCell();
+				td7.appendChild(document.createTextNode(bug['lastUpdatedDate']));
+				td7.style.border = '1px solid black';
+				td7.style.padding='10px';
+			
+				//last updated date
+				var td8 = tr.insertCell();
+				td8.appendChild(document.createTextNode(bug['dateCreated']));
+				td8.style.border = '1px solid black';
+				td8.style.padding='10px';
+			}); 
+			body.appendChild(tbl);
+		}
+	})
+}
+
+/*
+	assignToTest()
+	parameters: 
+	* bugID (string): the id of the bug being assigned to a tester
+	* devName (string): the username of the tester the bug is being assigned to
+	return type: null
+	when the bug is deemed an issue and the manager has to choose a tester, they may choose from a dropdown
+		menu of all users with permission "tester" and assign the bug to that user
+*/
+function assignToTest(bugID,testName) {
+	var data = "tester="+testName + "&id="+bugID;
+	$.ajax({
+			   url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/assignTester",
+			   data: data,
+			   type: "GET",
+			   beforeSend: function(xhr) {
+			       xhr.setRequestHeader('x-api-key', 'PSd1T6KWhr4p0W3Cszms84qP9sByP57H9kO5GGGG');
+					console.log(JSON.stringify(data))
+			   },
+			   success: function (data) {
+			   		console.log(data);
+			   }
+		})
+}
+
+/*
+	assignToDev()
+	parameters: 
+	* bugID (string): the id of the bug being assigned to a developer
+	* devName (string): the username of the developer the bug is being assigned to
+	return type: null
+	when the bug is deemed an issue and the manager has to choose a developer, they may choose from a dropdown
+		menu of all users with permission "developer" and assign the bug to that user
+*/
+function assignToDev(bugID,devName) {
+	var data = "developer="+devName  + "&id="+bugID;
+
+	$.ajax({
+			   url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/assignToDeveloper",
+			   data: data,
+			   type: "GET",
+			   beforeSend: function(xhr) {
+					xhr.setRequestHeader('x-api-key', 'K4cb4rI8Gq1LPzZFE4UXa3tTO3uA8JtO98CIayhI');
+			   },
+			   success: function (data) {
+					console.log(data);
+			   }
+		})
+}
+var permission = sessionStorage.getItem('permission');
+
+// if the user doesn't have manager permissions, send them back to the index page
+if(permission=="manager") {
+	managerData();
+}
+else {
+	document.location.href = "index.html";
+}
+
+</script>
+
+
+</body>
+</html>

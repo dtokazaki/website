@@ -1,0 +1,219 @@
+<!DOCTYPE>
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<title> SCU IT Bug Tracker Program </title>
+<!-- 
+this page can be used by anyone
+testers, developers, and managers can log in, and are redirected to the appropriate page
+other users can report bugs or input an ID to check on the status of the bug they reported
+ -->
+<script type="text/javascript">
+
+
+/*
+	createItem()
+    no parameters
+    return type: null
+    uses the values from the create bug form (id="addBug") to create a new bug
+    * details can be left empty
+    * description of the bug and choice of a system is mandatory
+    * sysem choice defaults to CourseAvail
+    once the bug is created, a unique code is generated and shown beneath the form
+*/
+function createItem() {
+	var x = document.getElementById("addBug");
+	
+	var sys = x.elements[0].value;
+	var des = x.elements[1].value;
+	var doi = x.elements[2].value;
+
+	if (des.trim().length == 0) {
+	    alert("Please Fill Out Description")
+	    return;
+	}
+
+	if (doi.trim().length == 0) doi = " ";
+	
+	var data = "description=" + des +"&details="+doi + "&system="+sys ;
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/createForm",
+		data: data,
+		type: "GET",
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('x-api-key', 'NZLlovyCrO83qyPR4IXNl7ARqF9nLaFn2EZp7AlL');
+		},
+		success: function (data) {
+			document.getElementById("uniqueCode").innerHTML= "The unique code for the bug you found is " + JSON.stringify(data);
+		}
+
+	})
+		
+}
+
+/*
+	readItem()
+    no parameters
+    return type: null
+    takes in value from field that asks for bug's unique id (id: "read")
+    if the id is valid, fills out fields below form, including
+    	bug ID, the description and details input by the user, and the current status
+*/
+function readItem() {
+	var x = document.getElementById("read");
+	var id = x.elements[0].value;
+
+	var data = "id=" + id;
+	
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/getForm",
+		data: data,
+		type: "GET",
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('x-api-key', 'NZLlovyCrO83qyPR4IXNl7ARqF9nLaFn2EZp7AlL');
+		},
+		success: function (data) {
+			document.getElementById("bugStatusID").innerHTML="Bug ID: " + data['code'];
+			document.getElementById("bugStatusDescr").innerHTML = "Description: " + data['description'];
+			document.getElementById("bugStatusDoing").innerHTML= "Details: " + data['details'];
+			document.getElementById("bugStatusStatus").innerHTML="Status: " + data['status'];
+		}
+	 })
+		
+}
+
+/*
+	login()
+    no parameters
+    return type: null
+    uses the values from the login form to set the user's permission level
+    * if either username or password field is left empty, an alert appears 
+    * if credentials are incorrect, an alert appears
+    * if credentials are correct, user is taken to their home page (tester.html, developer.html, or manager.html)
+*/
+function login() {
+	var username = document.getElementById("username").value;
+	var password = document.getElementById("password").value;
+
+	if (username.trim().length == 0 || password.trim().length == 0) {
+        alert("Please Fill Out Credentials")
+	    return;
+	}
+
+	var data = JSON.stringify({password: password, username: username});
+
+	$.ajax({
+		url: "https://052stnmylg.execute-api.us-west-1.amazonaws.com/firstTest/login",
+		data: data,
+		type: "POST",
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('x-api-key', 'qsC4GkBInl9l8EA9AsvRc6Le4W3EhCHd9uWb88S3');
+		},
+		success: function (data) {
+			// credentials incorrect: 
+			if(data == '-1') {
+				alert("Incorrect Credentials")
+				document.getElementById("username").value = "";
+				document.getElementById("password").value = "";
+				return;
+			}
+			// stores permission level and password
+			sessionStorage.setItem('permission',data);
+			sessionStorage.setItem('username',username);
+			// takes the user to their main page if their credentials were correct
+			if(data == "tester") {
+				document.location.href = "tester.html";
+			}
+			else if(data == "developer") {
+				document.location.href = "developer.html";
+			}
+			else if(data == "manager") {
+				document.location.href = "manager.html";
+			}
+
+
+		}
+	})
+
+ 	// clear username/password fields after the user presses submit
+	document.getElementById("username").value="";
+	document.getElementById("password").value="";
+
+
+}
+
+// clear sessionStorage when opening this page (effectively logged out)
+sessionStorage.setItem('username', " ");
+sessionStorage.setItem('permission', " ");
+
+</script>
+</head>
+
+<body style="margin:25">
+
+<!-- login -->
+<form style="width:200px; float:right" align="right">
+	<div class="form-group">
+		<input type="text" class="form-control" id="username"  placeholder="Enter username">
+		<input type="password" class="form-control" id="password" placeholder="Password">
+		<input id="usernameSubmit" type="button" value="Login" onclick="login();" />
+	</div>
+</form>
+
+<br>
+<br>
+<br>
+<br>
+
+<!-- form to add a bug, with fields for the system, a description of the bug, and any extra details
+	 directly underneath this form, the unique code will appear after the bug has been submitted -->
+<form id="addBug">
+  	<div class="form-group">
+	    <label for="exampleFormControlSelect1">System being used</label>
+	    <select class="form-control" id="exampleFormControlSelect1">
+			<option>CourseAvail</option>
+			<option>Camino</option>
+			<option>eCampus</option>
+	    </select>
+ 	</div>
+
+	<div class="form-group">
+		<label for="description">Description of the bug:</label>
+		<textarea class="form-control" id="description" rows="3" placeholder="Description" type="text"></textarea>
+	</div>
+
+	<div class="form-group">
+		<label for="during">What were you doing when you encountered the bug?</label>
+		<textarea class="form-control" id="during" rows="3" placeholder="What you were doing" type="text"></textarea>
+	</div>
+	<input id="Submit1" type="button" value="Send Form" onclick="createItem();" />
+</form>
+<br>
+<p id="uniqueCode"></p>
+<br>
+
+<!-- form to look at a bug that was previously submitted
+	 the information appears directly beneath the button that reads "Look At Item" -->
+<form id="read">
+  <div>
+	<label for="bugID">If you already submitted this form, please input your unique code to check on the status of your bug.</label>
+	<input type="text" class="form-control" id="bugID2" placeholder="Unique Code">
+  </div>
+  <br>
+  <input id="Submit2" type="button" value="Look Up Bug Status" onclick="readItem();" />
+</form>
+<br>
+<p id = "bugStatusID"></p>
+<p id = "bugStatusDescr"></p>
+<p id = "bugStatusDoing"></p>
+<p id = "bugStatusStatus"></p>
+
+</body>
+</html>
