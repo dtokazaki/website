@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;" />
+<html>
+  <head>
+    <title>CalVote</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon.ico">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <!-- cdn for modernizr, if you haven't included it already -->
+    <script src="http://cdn.jsdelivr.net/webshim/1.12.4/extras/modernizr-custom.js"></script>
+    <!-- polyfiller file to detect and load polyfills -->
+    <script src="http://cdn.jsdelivr.net/webshim/1.12.4/polyfiller.js"></script>
+    <script>
+      webshims.setOptions('waitReady', false);
+      webshims.setOptions('forms-ext', {types: 'date'});
+      webshims.polyfill('forms forms-ext');
+    </script>
+  </head>
+
+
+
+	<body scroll="no" style="overflow: hidden">
+		<!-- Main Screen -->
+    <div id="firstBox">
+		<form id="centerBox" action="javascript:void(0);">
+			<!-- hidden button -->
+			<input type="submit" class="defaultsink" onclick="otherSearch()" />
+			<h3><span style="color: #ecbb59">Vote</span><span style="color: #0000B2">CA</span></h3>
+			<input type="submit" value="Recently Updated" onclick="upcoming()" />
+			<h3>- OR -</h3>
+
+			<label for="bill">Bill Number <span style="color:#a8a8a8;">(SB#, AB#, ACR#, etc...)</span></label>
+			<input type="text" id="bill" name="firstname" placeholder="Number...">
+
+			<label for="day">Date of Last Action</label><br>
+			<input type="date" id="day" name="day" min="1970-01-01" ><br>
+			<input type="submit" value="Search" onclick="otherSearch()" tabindex="0">
+		</form>
+	</div>
+		
+
+    <!-- Blank Box -->
+		<div id="secondBox">
+			<h3><span style="color: #ecbb59">Vote</span><span style="color: #0000B2">CA</span></h3>
+			<div id="text">
+			</div>
+		</div>
+
+
+		<!-- List Box -->
+		<div id="thirdBox">
+			<h3><span style="color: #ecbb59">Vote</span><span style="color: #0000B2">CA</span></h3>
+			<div id="list">
+			</div>
+		</div>
+		
+
+    <input type="submit" id="back" value="Back" onclick="backToMain()" disabled/>
+	</body>
+	
+
+	<script>
+	transitionOut(document.getElementById("thirdBox"));
+    // Dictionary
+    var key = "d09ad1beb3b885847a39492a0f66987d";
+    var url = "https://api.legiscan.com/?key=" + key + "&op=";
+
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url + "getMasterList&id=1400", false);
+		xhr.send();
+		var test= JSON.parse(xhr.responseText);
+
+		function getDictionary (jsession)
+		{
+			var dicty= {};
+			var ids = [];
+			for (var key in jsession.masterlist)
+			{	
+				if (isNaN(key))
+				{
+					continue; //skips over non-number at end
+				}
+				var id = jsession.masterlist[key].bill_id;
+				var number = jsession.masterlist[key].number;
+				dicty[number] = id;
+				ids.push[id];
+				//document.write( number+ " : " + dicty[number] + "<br>");
+	
+			}
+			return dicty
+		}
+		
+		var dictionary = getDictionary(test);
+		
+		function getSortedBills(jsession,day = null)
+    {
+      var times= {};
+      var ids = [];
+      for (var key in jsession.masterlist)
+      { 
+        
+        if (isNaN(key))
+        {
+          continue; //skips over non-number at end
+        }
+        var datestring = jsession.masterlist[key].last_action_date;
+        var id = jsession.masterlist[key].bill_id;
+        if (day!= null && day!= datestring)
+        {
+          continue; //skips over if date is provided and not current
+        }
+        var date = new Date(datestring);
+        
+        dateInMs = date.getTime();
+        times[id] = dateInMs;
+        ids.push(id);
+        
+        //document.write( id+ " : " + times[id] + "<br>");
+      
+      }
+    
+    ids.sort(function(a, b){return times[b]-times[a]}); //a-b ascending b-a ascending
+    return ids;
+
+  }
+	
+  function isUpcoming(billID)
+  {
+      
+    info= getBill(billID);
+    if (info.bill.status <=3)
+    {
+      return true;
+    }
+    return false;
+      
+  }
+
+  function getTags(jbill)
+  {
+
+    var toadd = {};
+    var hislength = jbill.bill.history.length;
+    toadd["id"] = jbill.bill.bill_id;
+    toadd["date"] = jbill.bill.history[hislength-1].date;
+    toadd["description"] = jbill.bill.description;
+    toadd["action"] = jbill.bill.history[hislength-1].action;
+    toadd["number"] = jbill.bill.bill_number;
+    toadd["title"] = jbill.bill.title;
+    return toadd;
+
+  }
+
+	function getDocNumber(billNumber)
+	{
+	    
+	    var test= getBill(billNumber);
+	    var docNumber= test.bill.texts[test.bill.texts.length-1].doc_id; //test.bill.texts is an array so gets current version (last item in x)
+	    return docNumber;
+	}
+	
+	function getUpcoming(target = 10,datestring = null)
+  { 
+    var count = 0;    
+        var sortedBills = getSortedBills(test,datestring);    
+        var output= [];   
+    for (var item in sortedBills)
+    {     
+      if (isUpcoming(sortedBills[item]))
+      {
+        count++;        
+        jbill = getBill(sortedBills[item]);       
+        output.push(getTags(jbill));
+        
+      }
+      if (count >= target)
+      {
+        break;
+      }
+    
+    }
+    
+    
+      return output;
+  }
+  
+	function getBill(billNumber)
+	{
+		
+		var req = new XMLHttpRequest();
+		req.open("GET", url + "getBill&id=" + billNumber, false);
+		req.send();
+		return JSON.parse(req.responseText);
+	}
+	
+		function b64DecodeUnicode(str) {
+			return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+			}).join(''));
+		}
+		
+		function fillBillInfo(x) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", url + "getBillText&id="+getDocNumber(x), false);
+			xhr.send();
+			testyj = JSON.parse(xhr.responseText);
+			document.getElementById("text").innerHTML = b64DecodeUnicode(testyj.text.doc);
+		}
+	
+	
+	//
+		var current =  document.getElementById("firstBox");
+		
+		function upcoming() {
+			transitionOut(current);
+			fillUpcoming(10);
+			presentList();
+		}
+	
+		function otherSearch(x = null) {
+				var billNum;
+			  if(x!=null) {
+				billNum = x;
+			  } else {
+				billNum = document.getElementById("bill").value;
+			  }
+					var day;
+					if (document.getElementById("day") != null) {
+						day = document.getElementById("day").value;
+					} else {
+						day = null;
+					}
+					console.log("Search for:", billNum, day);
+			
+			  if(billNum != "" && day == "" && x==null) {
+				if(dictionary[billNum] == undefined) {
+				  alert("Invalid bill format");
+				} else {
+				  transitionOut(current);
+				  specificBill(x);
+				}
+			  } else if (billNum == "" && day != "" && x==null) {
+				transitionOut(current);
+				fillUpcoming(10, day);
+				presentList();
+			  } else {
+			  		transitionOut(current);
+				  specificBill(x);
+			  }
+		}
+		
+		function boldHTML(x) {
+      var element = document.createElement("b");
+      element.innerHTML = x;
+      return element;
+    }
+
+    function linkHTML(x, num) {
+      var element = document.createElement("a");
+      
+      element.setAttribute('onclick', "otherSearch('"+num+"'); return false;");
+      element.setAttribute('href', 'javascript:void(0);');
+      element.innerHTML = x;
+      
+      return element;
+    }
+
+
+		// Bill
+    function fillUpcoming(x, date = null) {
+		var list = getUpcoming(20, date);
+
+    var body = document.getElementsByTagName('body')[0];
+    var tbl = document.createElement('table');
+    tbl.setAttribute('style', 'border-color: #ffffff')
+
+    tbl.style.width = '100%';
+    tbl.setAttribute('border', '0');
+    tbl.setAttribute('style', 'border-collapse: collapse; border-color: #ffffff; width: 100%; text-align: left');
+    var tbdy = document.createElement('tbody');
+    for(var j = 0; j < 20; j++) {
+      //Title
+      var title = document.createElement('tr');
+      title.setAttribute('style', 'border-color: #ffffff')
+      var titleData = document.createElement('td');
+      titleData.setAttribute("colSpan", "2");
+      title.setAttribute('style', 'border-color: #ffffff; font-size: 20px; font-weight: bold')
+      var htmlStr = linkHTML(list[j]['title'], list[j]['number']);
+      //console.log(htmlStr);
+      titleData.appendChild(document.createTextNode(list[j]['number'] + ' - '))
+      titleData.appendChild(htmlStr);
+      title.appendChild(titleData)
+      tbdy.appendChild(title);
+
+      //Date and Action
+      var dateAction = document.createElement('tr');
+      dateAction.setAttribute('style', 'border-color: #ffffff')
+      var date = document.createElement('td');
+      date.setAttribute('style', 'border-color: #ffffff; font-size: 15px; width:50%;')
+      var action = document.createElement('td');
+      action.setAttribute('style', 'border-color: #ffffff; font-size: 15px; width:50%;')
+      date.appendChild(boldHTML('Last Action Date: '))
+      date.appendChild(document.createTextNode(list[j]["date"]))
+      action.appendChild(boldHTML('Latest Action: '))
+      action.appendChild(document.createTextNode(list[j]['action']))
+      dateAction.appendChild(date)
+      dateAction.appendChild(action)
+      tbdy.appendChild(dateAction);
+
+      //Desc
+      var desc = document.createElement('tr');
+      desc.setAttribute('style', 'border-color: #ffffff')
+      var descData = document.createElement('td');
+      descData.setAttribute("colSpan", "2");
+      descData.setAttribute("style", "font-size: 15px; padding-bottom: 25px")
+      descData.appendChild(boldHTML('Description: '))
+      descData.appendChild(document.createTextNode(list[j]['description']))
+      desc.appendChild(descData)
+      tbdy.appendChild(desc);
+  }
+    tbl.appendChild(tbdy);
+    var el = document.getElementById("list");
+    el.innerHTML = "";
+    el.appendChild(tbl);
+		}
+		
+		function clickedBill(x) {
+			transitionOut(current);
+			var boxTwo = document.getElementById("secondBox");
+			current = boxTwo;
+			
+			//fillBillInfo();
+			setTimeout(function(){
+				current.classList.remove("translateOut");
+				current.classList.add("fade-in");
+				document.getElementById("back").style.opacity = 1;
+				document.getElementById("back").disabled = false;
+			}, 500);
+		}
+	
+	// Transitions
+		function specificBill(x) {
+			var billNum;
+			  if(x!=null) {
+				billNum = x;
+			  } else {
+				billNum = document.getElementById("bill").value;
+			  }
+			console.log(billNum);
+			console.log(dictionary[billNum]);
+			fillBillInfo(dictionary[billNum]);
+			
+			var boxTwo = document.getElementById("secondBox");
+			current = boxTwo;
+			setTimeout(function(){
+				current.classList.remove("translateOut");
+				current.classList.add("fade-in");
+				document.getElementById("back").style.opacity = 1;
+				document.getElementById("back").disabled = false;
+			}, 500); 
+		}
+		
+		function presentList() {
+			var boxThree = document.getElementById("thirdBox");
+			current = boxThree;
+			setTimeout(function(){
+				current.classList.remove("translateOut");
+				current.classList.add("fade-in");
+				document.getElementById("back").style.opacity = 1;
+				document.getElementById("back").disabled = false;
+			}, 500); 
+		}
+		
+		function transitionOut(x) {
+			x.classList.add("translateOut");
+			x.style.opacity="0";
+			x.style.zIndex = "0";
+			
+		}
+		
+		function backToMain() {
+			transitionOut(current);
+			var firstBox = document.getElementById("firstBox");
+			current = firstBox;
+			var old = document.getElementById("thirdBox");
+			old.style.zIndex = "0";
+			setTimeout(function(){
+				current.classList.remove("translateOut");
+				current.classList.add("fade-in");
+				current.style.zIndex = "500";
+			}, 500); 
+			
+			document.getElementById("back").style.opacity = 0;
+			document.getElementById("back").disabled = true;
+		}
+	</script>
+</html>

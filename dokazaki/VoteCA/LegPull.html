@@ -1,0 +1,17 @@
+<!DOCType HTML>
+<html>
+<head>
+<title>Testing JavaScript</title>
+</head>
+<body>
+<script type="text/javascript">
+var key = "d09ad1beb3b885847a39492a0f66987d";
+var url = "https://api.legiscan.com/?key=" + key + "&op=";
+var xhr = new XMLHttpRequest();
+xhr.open("GET", url + "getBillText&id=1439185", false);
+xhr.send();
+testyj = JSON.parse(xhr.responseText);
+document.write(atob(testyj.text.doc));
+</script>
+</body>
+</html>

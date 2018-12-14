@@ -1,0 +1,23 @@
+<!DOCType HTML>
+<html>
+<head>
+<title>Testing JavaScript</title>
+</head>
+<body>
+<script type="text/javascript">
+function getDocNumber(billNumber)
+{
+	var key = "d09ad1beb3b885847a39492a0f66987d";
+	var url = "https://api.legiscan.com/?key=" + key + "&op=";
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url + "getBill&id=" + billNumber, false);
+	xhr.send();
+	var test= JSON.parse(xhr.responseText);
+	var docNumber= test.bill.texts[test.bill.texts.length-1].doc_id; //test.bill.texts is an array so gets current version (last item in x)
+	document.write(docNumber);
+	return docNumber;
+}
+getDocNumber(892463);
+</script>
+</body>
+</html>

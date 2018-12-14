@@ -1,0 +1,140 @@
+<!DOCType HTML>
+<html>
+<head>
+<title>Testing JavaScript</title>
+</head>
+<body>
+<script type="text/javascript">
+	var key = "d09ad1beb3b885847a39492a0f66987d";
+	var url = "https://api.legiscan.com/?key=" + key + "&op=";
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url + "getMasterList&id=1400", false);
+	xhr.send();
+	var test= JSON.parse(xhr.responseText);
+
+	function getDictionary (jsession)
+	{
+		var dicty= {};
+		
+		for (var key in jsession.masterlist)
+		{	
+			if (isNaN(key))
+			{
+				continue; //skips over non-number at end
+			}
+			var id = jsession.masterlist[key].bill_id;
+			var number = jsession.masterlist[key].number;
+			dicty[number] = id;
+			
+			//document.write( number+ " : " + dicty[number] + "<br>");
+		
+		}
+		return dicty
+
+	}
+	function getSortedBills(jsession,day = null)
+	{
+		var times= {};
+		var ids = [];
+		for (var key in jsession.masterlist)
+		{	
+			
+			if (isNaN(key))
+			{
+				continue; //skips over non-number at end
+			}
+			var datestring = jsession.masterlist[key].last_action_date;
+			var id = jsession.masterlist[key].bill_id;
+			if (day!= null && day!= datestring)
+			{
+				continue; //skips over if date is provided and not current
+			}
+			var date = new Date(datestring);
+			
+			dateInMs = date.getTime();
+			times[id] = dateInMs;
+			ids.push(id);
+			
+			//document.write( id+ " : " + times[id] + "<br>");
+		
+		}
+		
+		ids.sort(function(a, b){return times[b]-times[a]}); //a-b ascending b-a ascending
+		return ids;
+
+	}
+	function getDocNumber(billNumber)
+	{
+	    
+	    var test= getBill(billNumber);
+	    var docNumber= test.bill.texts[test.bill.texts.length-1].doc_id; //test.bill.texts is an array so gets current version (last item in x)
+	    
+	    return docNumber;
+	}
+	function isUpcoming(billID)
+	{
+			
+		info= getBill(billID);
+		if (info.bill.status <=3)
+		{
+			return true;
+		}
+		return false;
+			
+	}
+	function getUpcoming(target = 10,datestring = null)
+	{	
+		var count = 0;		
+        var sortedBills = getSortedBills(test,datestring);		
+        var output= [];		
+		for (var item in sortedBills)
+		{			
+			if (isUpcoming(sortedBills[item]))
+			{
+				count++;				
+				jbill = getBill(sortedBills[item]);				
+				output.push(getTags(jbill));
+				
+			}
+			if (count >= target)
+			{
+				break;
+			}
+		
+		}
+		
+		
+	    return output;
+	}
+	function getTags(jbill)
+	{
+
+		var toadd = {};
+		var hislength = jbill.bill.history.length;
+		toadd["id"] = jbill.bill.bill_id;
+		toadd["date"] = jbill.bill.history[hislength-1].date;
+		toadd["description"] = jbill.bill.description;
+		toadd["action"] = jbill.bill.history[hislength-1].action;
+		toadd["number"] = jbill.bill.bill_number;
+		toadd["title"] = jbill.bill.title;
+		return toadd;
+
+	}
+	function getBill(billNumber)
+	{
+		
+		var req = new XMLHttpRequest();
+		req.open("GET", url + "getBill&id=" + billNumber, false);
+		req.send();
+		return JSON.parse(req.responseText);
+	}
+	
+	
+	//console.log(getBill(892574));
+	//console.log(getUpcoming(20,"2017-03-01"));
+	
+
+
+</script>
+</body>
+</html>

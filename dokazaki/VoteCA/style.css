@@ -1,0 +1,392 @@
+@font-face {
+    font-family: fillFont;
+    src: url("Fonts/GOTHIC.TTF");
+    font-size: 50vh;
+}
+
+@font-face {
+	font-family: mainFont;
+    src: url("Fonts/GOTHIC.TTF");
+    font-size: 50vh;
+}
+
+@font-face {
+	font-family: titleFont;
+    src: url("Fonts/OstrichSans-Medium.otf");
+    font-size: 50vh;
+}
+
+@media screen and (max-width: 480px) {
+	body {
+		height:90vh !important;
+	}
+	
+    #centerBox {
+		position: fixed;
+		overflow: hidden;
+		background-color:#fff;
+		padding:15px;
+		width: 80% !important;
+		min-width:200px !important;
+		font-size: 2.5vh;
+
+		margin-left: 50vw;
+		margin-top:50vh;
+		border-radius: 5px;
+		transform: translate(-50%, -50%);
+		-webkit-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+		-moz-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+		box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	}
+	#secondBox {
+	  position:absolute;
+	  overflow-y: scroll;
+	  background-color:#ffffff;
+	  font-size: 2.5vh;
+	  height: 70vh !important;
+	  line-height: 1.5;
+	  text-align: center;
+	  margin-left: 10vw;
+	  margin-right:10vw;
+	  margin-top: 1vh;
+	  padding: 15px;
+	  margin-top:5vh;
+	  margin-bottom:5vh;
+	  border-radius: 5px;
+	  /*transform: translate(-50%, -50%);*/
+	  -webkit-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	  -moz-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	  box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	  opacity: 0;
+	  z-index: 200;
+	}
+	
+	#thirdBox {
+		position:absolute;
+		background-color:#ffffff;
+		font-size: 2.5vh;
+		height: 60vh !important;
+		line-height: 1.5;
+		text-align: center;
+		margin-left: 50vw;
+		transform: translate(-50%, 0%);
+		margin-right:10vw;
+		margin-top:1vh;
+		margin-bottom:5vh;
+		padding: 15px;
+		width: 80% !important;
+		min-width:200px;
+		border-radius: 5px;
+		/*transform: translate(-50%, -50%);*/
+		-webkit-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+		-moz-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+		box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+		opacity: 0;
+		z-index:100 !important;
+	}
+	
+	#back {
+		transform: translate(-200%, -50%) !important;
+		left:50%;
+	}
+}
+
+input {
+	-moz-appearance: none; 
+	-webkit-appearance: none;
+}
+
+body {
+	overflow: hidden;
+
+  font-family: mainFont;
+	height:100vh;
+	/***  CSS Gradient  ***/
+  /*  Chrome 1-9 and Safari 4-5.0  */
+  background-image: -webkit-gradient(linear, left top, left bottom,
+        color-stop( 0.0, #ecbb59 ),
+        color-stop( 1.0, #ffffff ));
+
+  /*  Chrome 10+ Safari 5.1+ Mobile Safari  */
+  background-image: -webkit-linear-gradient(top,
+        #ecbb59, 
+        #ffffff );
+
+  /*  Firefox 3.6+  */
+  background-image: -moz-linear-gradient(top,
+        #ecbb59, 
+        #ffffff );
+
+  /*  IE 10+  */
+  background-image: -ms-linear-gradient(top,
+        #ecbb59, 
+        #ffffff );
+
+  /*  Opera 11.10+  */
+  background-image: -o-linear-gradient(top,
+        #ecbb59, 
+        #ffffff );
+
+  /*  W3C  */
+  background-image: linear-gradient(top,
+        #ecbb59, 
+        #ffffff );
+}
+
+hr {
+  height: 3px;
+  background-color: #ecbb59;
+  border: none;
+    border-radius: 5px;
+  width: 20%;
+
+}
+
+#list {
+  overflow-y: hidden;
+}
+
+#relativeDiv {
+  position: relative;
+  }
+
+#secondBox {
+  position:absolute;
+  overflow-y: scroll;
+  background-color:#ffffff;
+  font-size: 2.5vh;
+  height: 80vh;
+  line-height: 1.5;
+  text-align: center;
+  margin-left: 10vw;
+  margin-right:10vw;
+  padding: 15px;
+  margin-top:5vh;
+  margin-bottom:5vh;
+  border-radius: 5px;
+  /*transform: translate(-50%, -50%);*/
+  -webkit-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+  opacity: 0;
+  z-index: 200
+}
+
+#thirdBox {
+	position:absolute;
+	background-color:#ffffff;
+	font-size: 2.5vh;
+	height: 80vh;
+	line-height: 1.5;
+	text-align: center;
+	margin-left: 50vw;
+	transform: translate(-50%, 0%);
+	margin-right:10vw;
+	margin-top:5vh;
+	margin-bottom:5vh;
+	padding: 15px;
+	width: 60%;
+	min-width:200px;
+	border-radius: 5px;
+	/*transform: translate(-50%, -50%);*/
+	-webkit-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	-moz-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	opacity: 0;
+	z-index:100 !important;
+}
+
+#thirdBox li {
+	text-align: left;
+}
+
+#thirdBox {
+  overflow-y: scroll;
+}
+
+#centerBox {
+	transform-style:preserve-3d;
+	position:absolute;
+	overflow: hidden;
+	background-color:#fff;
+	padding:15px;
+	width: 40%;
+	min-width:200px;
+	font-size: 2.5vh;
+
+	margin-left: 50vw;
+	margin-top:50vh;
+	border-radius: 5px;
+	transform: translate(-50%, -50%);
+	-webkit-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	-moz-box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	box-shadow: 0px 0px 43px -17px rgba(0,0,0,0.75);
+	z-index: 10000;
+}
+
+#back {
+	bottom:0px;
+	position:fixed;
+	transform: translate(-50%, -50%);
+	left:50%;
+	
+}
+
+h3 {
+	text-align: center;
+	font-family: titleFont;
+  margin-top: 5px;
+  margin-bottom: 0px;
+  font-size: 7vh;
+}
+
+input[type=text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 3vh;
+    color: black;
+}
+
+input[type=date], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 3vh;
+}
+
+input[type=date]:invalid::-webkit-datetime-edit {
+    color: #a8a8a8;
+}
+
+.ws-popover {
+	z-index:99999;
+}
+
+input, select, textarea, button{
+	font-family:inherit;
+}
+
+input[type=submit] {
+    display:block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 7px 20px;
+    margin: auto;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 25px;
+    overflow: visible;
+
+
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+#firstBox.translateOut {
+	-webkit-transition: 2s;
+	-moz-transition: 2s;
+	-ms-transition: 2s;
+	-o-transition: 2s;
+	transition: 2s;
+	margin-left: 300% !important;
+	margin-right: -300% !important;
+	z-index:0 !important;
+	opacity:1;
+}
+
+#secondBox.translateOut {
+	-webkit-transition: 2s;
+	-moz-transition: 2s;
+	-ms-transition: 2s;
+	-o-transition: 2s;
+	transition: 2s;
+	margin-left: 300% !important;
+	margin-right: -300% !important;
+	z-index:0 !important;
+	opacity:1;
+}
+
+#thirdBox.translateOut {
+	-webkit-transition: 2s;
+	-moz-transition: 2s;
+	-ms-transition: 2s;
+	-o-transition: 2s;
+	transition: 2s;
+	margin-left: 300% !important;
+	margin-right: -300% !important;
+	z-index:0 !important;
+	opacity:1;
+}
+
+
+#back {
+	opacity: 0;
+}
+
+
+/* Fade in Animations */
+
+@-webkit-keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@-moz-keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+.defaultsink {
+    position: absolute; left: -100%;
+}
+
+.fade-in {
+    opacity:0;  /* make things invisible upon start */
+    -webkit-animation:fadeIn ease-in 1;  /* call our keyframe named fadeIn, use animattion ease-in and repeat it only 1 time */
+    -moz-animation:fadeIn ease-in 1;
+    animation:fadeIn ease-in 1;
+
+    -webkit-animation-fill-mode:forwards;  /* this makes sure that after animation is done we remain at the last keyframe value (opacity: 1)*/
+    -moz-animation-fill-mode:forwards;
+    animation-fill-mode:forwards;
+
+    -webkit-animation-duration:1s;
+    -moz-animation-duration:1s;
+    animation-duration:1s;
+    
+    z-index:2000;
+}
+
+.fade-in.delay {
+	-webkit-animation-delay: .5s;
+	-moz-animation-delay: .5s;
+	animation-delay: 1.5s;
+}
+
+
+@-webkit-keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+@-moz-keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+@keyframes fadeOut { from { opacity:1; } to { opacity:0; } }
+
+.fade-out {
+    opacity:1;  /* make things invisible upon start */
+    -webkit-animation:fadeIn ease-in 1;  /* call our keyframe named fadeIn, use animattion ease-in and repeat it only 1 time */
+    -moz-animation:fadeIn ease-in 1;
+    animation:fadeIn ease-in 1;
+
+    -webkit-animation-fill-mode:forwards;  /* this makes sure that after animation is done we remain at the last keyframe value (opacity: 1)*/
+    -moz-animation-fill-mode:forwards;
+    animation-fill-mode:forwards;
+
+    -webkit-animation-duration:1s;
+    -moz-animation-duration:1s;
+    animation-duration:1s;
+    
+    z-index: 0;
+}
