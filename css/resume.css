@@ -213,3 +213,13 @@ a:hover, a:focus, a:active {
   display: grid;
   grid-template-columns: auto auto auto;
 }
+
+table {
+  border: 1px solid black;
+  border-spacing: 5px;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 15px;
+}
